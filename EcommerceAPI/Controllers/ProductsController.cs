@@ -1,6 +1,7 @@
 using EcommerceAPI.Models;
 using EcommerceAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EcommerceAPI.Controllers
 {
@@ -33,6 +34,7 @@ namespace EcommerceAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post(Product newProduct)
         {
             if (!ModelState.IsValid)
@@ -46,6 +48,7 @@ namespace EcommerceAPI.Controllers
         }
 
         [HttpPut("{id:length(24)}")]
+        [Authorize]
         public async Task<IActionResult> Update(string id, Product updatedProduct)
         {
             if (!ModelState.IsValid)
@@ -68,6 +71,7 @@ namespace EcommerceAPI.Controllers
         }
 
         [HttpDelete("{id:length(24)}")]
+        [Authorize]
         public async Task<IActionResult> Delete(string id)
         {
             var product = await _productService.GetAsync(id);

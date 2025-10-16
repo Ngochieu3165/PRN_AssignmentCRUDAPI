@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Product } from '@/types/product';
+import ImageUpload from './ImageUpload';
 
 interface ProductFormProps {
   product?: Product;
@@ -16,6 +17,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
     price: 0,
     image: ''
   });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -28,9 +30,14 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
     }
   }, [product]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setSubmitting(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -82,22 +89,28 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="image">Image URL</label>
-          <input
-            type="url"
-            id="image"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-          />
-        </div>
+        <ImageUpload
+          currentImage={formData.image}
+          onImageChange={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl || '' }))}
+          disabled={submitting}
+        />
 
         <div className="button-group">
-          <button type="submit" className="btn btn-success">
-            {product ? 'Update' : 'Add'}
+          <button 
+            type="submit" 
+            className="btn btn-success"
+            disabled={submitting}
+            style={{ opacity: submitting ? 0.6 : 1, cursor: submitting ? 'not-allowed' : 'pointer' }}
+          >
+            {submitting ? 'Saving...' : (product ? 'Update' : 'Add')}
           </button>
-          <button type="button" className="btn btn-primary" onClick={onCancel}>
+          <button 
+            type="button" 
+            className="btn btn-primary" 
+            onClick={onCancel}
+            disabled={submitting}
+            style={{ opacity: submitting ? 0.6 : 1, cursor: submitting ? 'not-allowed' : 'pointer' }}
+          >
             Cancel
           </button>
         </div>
